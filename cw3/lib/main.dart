@@ -341,7 +341,7 @@ class _MyWidgetState extends State<MyWidget> {
                         num2 = "";
                         operator = "";
                         showVal = "0";
-                      } else {}
+                      }
                     });
                   },
                   child: Text("C"),
