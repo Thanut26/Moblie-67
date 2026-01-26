@@ -57,9 +57,9 @@ class _GradeFormState extends State<GradeForm> {
       resFinal = double.tryParse(_finalScore.text) ?? 0;
       resTotal = resCollect + resMid + resFinal;
 
-      if (resTotal >= 80)
+      if (resTotal >= 80) {
         resGrade = "A";
-      else if (resTotal >= 70)
+      } else if (resTotal >= 70)
         resGrade = "B";
       else if (resTotal >= 60)
         resGrade = "C";
@@ -133,7 +133,7 @@ class _GradeFormState extends State<GradeForm> {
                       ],
                     ),
                     DropdownButtonFormField(
-                      value: _selectedSubject,
+                      initialValue: _selectedSubject,
                       decoration: const InputDecoration(
                         labelText: 'เลือกรายวิชา',
                       ),
