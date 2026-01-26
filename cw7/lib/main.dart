@@ -17,9 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MyHomePage(title: 'Add itme'),
     );
   }
@@ -36,13 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
-  final tabs = [
-    Home(),
-    Discovery(),
-    Library(),
-    Feed(),
-    ActivityPage(),
-  ];
+  final tabs = [Home(), Discovery(), Library(), Feed(), ActivityPage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,30 +47,35 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-            backgroundColor: Colors.greenAccent),
+            backgroundColor: Colors.greenAccent,
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_pin),
             label: 'Discover',
-            backgroundColor: Colors.green),
+            backgroundColor: Colors.green,
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.library_books),
             label: 'Library',
-            backgroundColor: Colors.orange),
+            backgroundColor: Colors.orange,
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Feed',
-            backgroundColor: Colors.blue),
+            backgroundColor: Colors.blue,
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star),
             label: 'Activity',
-            backgroundColor: Colors.deepPurpleAccent),
+            backgroundColor: Colors.deepPurpleAccent,
+          ),
         ],
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-      )
+      ),
     );
   }
 }
