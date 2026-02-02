@@ -7,46 +7,28 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false, // เอาป้าย Debug ออก
+      title: 'List Example',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MyHomePage(title: 'List Example'),
     );
   }
 }
 
+// Data Class ตามสไลด์หน้า 3 (source: 122)
+class data {
+  late int id;
+  late String name;
+  late DateTime t;
+
+  data(this.id, this.name, this.t);
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -54,69 +36,135 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  // ตัวแปร State ตามสไลด์
+  String txt = ''; // (source: 196, 107)
+  List<data> mylist = []; // (source: 108)
+  int img = 1; // ตัวแปรเก็บค่า Radio ที่เลือก (source: 139)
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      appBar: AppBar(title: Text(widget.title)),
+      body: SingleChildScrollView(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
           children: [
-            const Text('You have pushed the button this many times:'),
+            // ส่วนเลือก Icon (Radio Buttons)
+            // สร้าง Row เพื่อจัดเรียงแนวนอนเหมือนใน Screenshot
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  radioItem(1, 'assets/images/ig.png'),
+                  radioItem(2, 'assets/images/line.png'),
+                  radioItem(3, 'assets/images/avenger.png'),
+                  radioItem(4, 'assets/images/marvel.jpeg'),
+                ],
+              ),
+            ),
+
+            // ช่องกรอกข้อความ (source: 191)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: InputDecoration(hintText: "Enter text..."),
+              ),
+            ),
+
+            // ปุ่ม Add Item (source: 192)
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  txt = "Add item Success";
+                  // เพิ่มข้อมูลลงใน List (source: 197)
+                  // หมายเหตุ: ตามโค้ดในสไลด์ ใช้ตัวแปร img เป็น id
+                  mylist.add(data(img, '1', DateTime.now()));
+                });
+              },
+              child: const Text('Add Item'),
+            ),
+
+            // ข้อความแสดงสถานะ (source: 200)
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              txt,
+              textScaleFactor: 1.5, // ปรับขนาดให้อ่านง่ายขึ้น (สไลด์ใช้ 2)
+              style: const TextStyle(color: Colors.black54),
+            ),
+
+            // พื้นที่แสดงรายการ (ListView) (source: 206)
+            SizedBox(
+              width: double.infinity,
+              height: 550,
+              child: ListView.builder(
+                itemCount: mylist.length, // (source: 210)
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 80,
+                    child: Card(
+                      elevation: 5,
+                      // ขอบมนกลม (source: 218)
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      // สีรุ้งตาม Index (source: 220)
+                      color: Colors.primaries[index % Colors.primaries.length],
+                      child: ListTile(
+                        // รูป Rocket ด้านหน้า (source: 222)
+                        leading: const CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage(
+                            'assets/images/rocket.png',
+                          ),
+                        ),
+                        // ข้อความ Title (source: 227)
+                        title: Text(
+                          'Title Text (${mylist[index].id})',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        // ข้อความ Subtitle (วันที่) (source: 228)
+                        subtitle: Text(mylist[index].t.toString()),
+                        // ปุ่มลบด้านหลัง (Trailing)
+                        trailing: const Icon(Icons.delete_rounded),
+                        // กดเพื่อลบ (source: 229)
+                        onTap: () {
+                          setState(() {
+                            txt = "Title Text ($index) is remove";
+                            mylist.removeAt(index);
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    );
+  }
+
+  // ฟังก์ชันช่วยสร้าง Widget Radio + รูปภาพ เพื่อลดความซ้ำซ้อน
+  Widget radioItem(int value, String assetPath) {
+    return Row(
+      children: [
+        Radio(
+          value: value,
+          groupValue: img,
+          onChanged: (int? v) {
+            setState(() {
+              img = v!;
+            });
+          },
+        ),
+        CircleAvatar(
+          radius: 20,
+          backgroundImage: AssetImage(assetPath),
+          backgroundColor: Colors.transparent,
+        ),
+        const SizedBox(width: 10), // เว้นระยะห่างนิดหน่อย
+      ],
     );
   }
 }
