@@ -1,0 +1,59 @@
+<!doctype html>
+<title>Add User - Python Flask MySQL CRUD</title>
+<h2>Add User</h2>
+
+<form onsubmit="event.preventDefault(); ins_data();">
+<dl>
+
+<input id="iName" type="text" placeholder="Name" required>
+<p>
+
+<input id="iEmail" type="text" placeholder="Email" required>
+</p>
+
+<p>
+<input id="iPhone" type="text" placeholder="Phone" required>
+</p>
+
+<p>
+<input id="iAddress" type="text" placeholder="Address" required>
+</p>
+
+<p>
+<input id="iAge" type="number" placeholder="Age" required>
+</p>
+
+<p>
+<input id="iMajor" type="text" placeholder="Major" required>
+</p>
+
+</dl>
+
+<p>
+<button type="submit">Save</button>
+</p>
+
+</form>
+
+<script>
+async function ins_data(){
+    const rawResponse = await fetch('/create', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name   : document.getElementById('iName').value,
+            email  : document.getElementById('iEmail').value,
+            phone  : document.getElementById('iPhone').value,
+            address: document.getElementById('iAddress').value,
+            age    : document.getElementById('iAge').value,
+            major  : document.getElementById('iMajor').value
+        })
+    });
+
+    const content = await rawResponse.json();
+    alert(content);
+}
+</script>
