@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324347420171",
+    "project_id": "thanutdata2026",
+    "storage_bucket": "thanutdata2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324347420171:android:a03a382823e839ce7bf10e",
+        "android_client_info": {
+          "package_name": "com.example.cw13"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPQqv7MNLz6AqxNZcBHOv-AAsqFPDfnzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
