@@ -15,7 +15,7 @@ class _Page1State extends State<Page1> {
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: const Text(
-          'Firebase24',
+          'BMI Calculator & Firebase',
           style: TextStyle(color: Colors.white),
         ), // Text
       ), // AppBar
@@ -28,7 +28,7 @@ class _Page1State extends State<Page1> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text('Loading');
+            return const Center(child: CircularProgressIndicator());
           }
 
           return Padding(
@@ -42,81 +42,110 @@ class _Page1State extends State<Page1> {
                   child: ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                    ), // RoundedRectangleBorder
-                    title: Text(data['name']),
-                    subtitle: Text(data['job']),
-                    leading: const Icon(Icons.person),
-                    trailing: !data['admin']
-                        ? SizedBox(
-                            width: 100,
-                            child: Row(
-                              children: <Widget>[
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    doEdit(document, data);
-                                  },
-                                ), // IconButton
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    doDel(document.id);
-                                  },
-                                ), // IconButton
-                              ], // <Widget>[]
-                            ), // Row
-                          ) // SizedBox
-                        : null,
-                    tileColor: Colors.amberAccent,
-                  ), // ListTile
-                ); // Container
+                    ),
+                    title: Text(
+                      data['name'] ?? 'No Name',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    // แสดงค่าน้ำหนัก ส่วนสูง และ BMI
+                    subtitle: Text(
+                      'Weight: ${data['weight']} kg, Height: ${data['height']} cm\nBMI: ${data['BMI']}',
+                    ),
+                    isThreeLine: true, // อนุญาตให้ subtitle มี 2 บรรทัด
+                    leading: const Icon(Icons.person, size: 40),
+                    // เอาเงื่อนไข admin ออก ให้แสดงปุ่มแก้ไข/ลบ ตลอด
+                    trailing: SizedBox(
+                      width: 100,
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              doEdit(document, data);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              doDel(document.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    tileColor: Colors.amberAccent.shade100,
+                  ),
+                );
               }).toList(),
-            ), // ListView
-          ); // Padding
+            ),
+          );
         },
-      ), // StreamBuilder
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           doAdd();
         },
-        child: const Icon(Icons.add),
-      ), // FloatingActionButton
-    ); // Scaffold
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
   }
 
   void doAdd() async {
-    //modal input
     TextEditingController nameController = TextEditingController();
-    TextEditingController jobController = TextEditingController();
+    TextEditingController weightController = TextEditingController();
+    TextEditingController heightController = TextEditingController();
 
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Data'),
+          title: const Text('Add BMI Data'),
           content: Column(
-            mainAxisSize: MainAxisSize
-                .min, // เพิ่มบรรทัดนี้เพื่อไม่ให้ Column กินพื้นที่แนวตั้งเกินไป
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ), // TextField
+                decoration: const InputDecoration(labelText: 'Name (ชื่อ)'),
+              ),
               TextField(
-                controller: jobController,
-                decoration: const InputDecoration(labelText: 'Job'),
-              ), // TextField
-            ], // <Widget>[]
-          ), // Column
+                controller: weightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Weight (น้ำหนัก kg)',
+                ),
+              ),
+              TextField(
+                controller: heightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Height (ส่วนสูง cm)',
+                ),
+              ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               child: const Text('Cancel'),
-            ), // TextButton
+            ),
             TextButton(
               onPressed: () {
+                // คำนวณ BMI
+                double weight = double.tryParse(weightController.text) ?? 0;
+                double heightCm = double.tryParse(heightController.text) ?? 0;
+                double bmi = 0;
+
+                if (heightCm > 0) {
+                  double heightM = heightCm / 100; // แปลงเป็นเมตร
+                  bmi = weight / (heightM * heightM);
+                }
+
+                // ปัดเศษทศนิยม 2 ตำแหน่ง
+                double finalBmi = double.parse(bmi.toStringAsFixed(2));
+
                 final FirebaseFirestore firestore = FirebaseFirestore.instance;
                 final CollectionReference mainCollection = firestore.collection(
                   'userData',
@@ -124,45 +153,55 @@ class _Page1State extends State<Page1> {
 
                 mainCollection.add({
                   'name': nameController.text,
-                  'job': jobController.text,
-                  'admin': false,
+                  'weight': weight,
+                  'height': heightCm,
+                  'BMI': finalBmi,
                 });
 
                 Navigator.pop(context);
               },
               child: const Text('Add'),
-            ), // TextButton
-          ], // <Widget>[]
-        ); // AlertDialog
+            ),
+          ],
+        );
       },
     );
   }
 
   void doEdit(DocumentSnapshot document, Map<String, dynamic> data) async {
-    // เติม async ตรงนี้
-    //modal input
     TextEditingController nameController = TextEditingController();
-    TextEditingController jobController = TextEditingController();
+    TextEditingController weightController = TextEditingController();
+    TextEditingController heightController = TextEditingController();
 
-    nameController.text = data['name'];
-    jobController.text = data['job'];
+    nameController.text = data['name'].toString();
+    weightController.text = data['weight'].toString();
+    heightController.text = data['height'].toString();
 
     await showDialog(
-      // เปลี่ยนเป็น await showDialog
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Data'),
+          title: const Text('Edit BMI Data'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name (ชื่อ)'),
               ),
               TextField(
-                controller: jobController,
-                decoration: const InputDecoration(labelText: 'Job'),
+                controller: weightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Weight (น้ำหนัก kg)',
+                ),
+              ),
+              TextField(
+                controller: heightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Height (ส่วนสูง cm)',
+                ),
               ),
             ],
           ),
@@ -175,14 +214,12 @@ class _Page1State extends State<Page1> {
             ),
             TextButton(
               onPressed: () async {
-                //confirm modal
                 await showDialog(
-                  // เติม await ตรงนี้
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('Save Data'),
-                      content: const Text('Are you sure?'),
+                      content: const Text('Are you sure you want to save?'),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
@@ -192,7 +229,24 @@ class _Page1State extends State<Page1> {
                         ),
                         TextButton(
                           onPressed: () async {
-                            Navigator.pop(context); // ปิดหน้าต่าง confirm
+                            Navigator.pop(context); // ปิดหน้าต่าง Confirm
+
+                            // คำนวณ BMI ใหม่หลังแก้ไข
+                            double weight =
+                                double.tryParse(weightController.text) ?? 0;
+                            double heightCm =
+                                double.tryParse(heightController.text) ?? 0;
+                            double bmi = 0;
+
+                            if (heightCm > 0) {
+                              double heightM = heightCm / 100;
+                              bmi = weight / (heightM * heightM);
+                            }
+
+                            double finalBmi = double.parse(
+                              bmi.toStringAsFixed(2),
+                            );
+
                             final FirebaseFirestore firestore =
                                 FirebaseFirestore.instance;
                             final CollectionReference mainCollection = firestore
@@ -200,7 +254,9 @@ class _Page1State extends State<Page1> {
 
                             await mainCollection.doc(document.id).update({
                               'name': nameController.text,
-                              'job': jobController.text,
+                              'weight': weight,
+                              'height': heightCm,
+                              'BMI': finalBmi,
                             });
                           },
                           child: const Text('Save'),
@@ -217,26 +273,24 @@ class _Page1State extends State<Page1> {
       },
     );
 
-    // พอโชว์ Dialog เสร็จ ค่อยมาปิดหน้าต่าง Edit ตรงนี้แทน (แก้ปัญหา Context across async gaps)
     if (!mounted) return;
     Navigator.pop(context);
   }
 
   void doDel(String id) {
-    //modal dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Data'),
-          content: const Text('Are you sure?'),
+          content: const Text('Are you sure you want to delete?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               child: const Text('Cancel'),
-            ), // TextButton
+            ),
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
@@ -248,9 +302,9 @@ class _Page1State extends State<Page1> {
                 await mainCollection.doc(id).delete();
               },
               child: const Text('Delete'),
-            ), // TextButton
-          ], // <Widget>[]
-        ); // AlertDialog
+            ),
+          ],
+        );
       },
     );
   }
